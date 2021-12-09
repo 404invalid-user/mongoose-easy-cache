@@ -1,0 +1,28 @@
+{
+    "dependencies": {
+        "mongoose": "^6.1.0"
+    },
+    "name": "mongoose-easy-cache",
+    "description": "a easy light weight way of speeding up your app by watching your mongodb",
+    "version": "1.0.0",
+    "main": "index.js",
+    "devDependencies": {},
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/404invalid-user/mongoose-easy-cache.git"
+    },
+    "keywords": [
+        "mongoose",
+        "cache",
+        "easy"
+    ],
+    "author": "404invalid-user",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/404invalid-user/mongoose-easy-cache/issues"
+    },
+    "homepage": "https://github.com/404invalid-user/mongoose-easy-cache#readme"
+}
