@@ -1,13 +1,13 @@
 module.exports.Cache = class {
     constructor(t, s) {
-        this.cacheType = t
-        this.cache = [];
+        if (!s || s == null || s == undefined) {
+            throw "Error: schema is undefined";
+        }
+        this.cacheType = t;
+        this.cache = [{ e: 'g' }];
         this.schema = s;
     }
     async loadAll() {
-        if (!this.schema || this.schema == null || this.schema == undefined) {
-            throw "Error: schema is undefined";
-        }
         let l = this.cache.length;
         const toCache = await this.schema.find({});
         for await (const c of toCache) {
@@ -19,9 +19,6 @@ module.exports.Cache = class {
         };
     }
     async reloadAll() {
-        if (!this.schema || this.schema == null || this.schema == undefined) {
-            throw "Error: schema is undefined";
-        }
         this.cache = [];
         const toCache = await this.schema.find({});
         for await (const c of toCache) {
@@ -34,31 +31,27 @@ module.exports.Cache = class {
     }
 
     async get(values) {
-        if (!this.schema || this.schema == null || this.schema == undefined) {
-            throw "Error: schema is undefined";
-        }
         let currentFile;
         let foundInCache = false;
-        for await (const file of this.catch) {
-            for (const theShit in values) {
-                if (file[theShit]) {
-                    foundInCache = true;
-                    currentFile = file;
+        if (this.cache.length > 0) {
+            for await (const file of this.cache) {
+                for (const theShit in values) {
+                    if (file[theShit]) {
+                        foundInCache = true;
+                        currentFile = file;
+                    }
                 }
             }
         }
         if (foundInCache == false) {
             currentFile = await this.schema.findOne(values);
             if (currentFile != null) {
-                this.catch.push(currentFile);
+                this.cache.push(currentFile);
             }
         }
         return currentFile;
     }
     async update(values) {
-        if (!this.schema || this.schema == null || this.schema == undefined) {
-            throw "Error: schema is undefined";
-        }
         let currentFile;
         let updatedFile = await this.schema.findOne(values);
         let foundInCache = false;
@@ -77,9 +70,83 @@ module.exports.Cache = class {
         return updatedFile;
     }
     async create(v) {
-        if (!this.schema || this.schema == null || this.schema == undefined) {
+        const out = await this.schema.create(v);
+        this.cache.push(v);
+        return out;
+    }
+}
+module.exports.CacheArray = class {
+    constructor(t, s) {
+        if (!s || s == null || s == undefined) {
             throw "Error: schema is undefined";
         }
+        this.cacheType = t;
+        this.cache = [{ e: 'g' }];
+        this.schema = s;
+    }
+    async loadAll() {
+        let l = this.cache.length;
+        const toCache = await this.schema.find({});
+        for await (const c of toCache) {
+            this.cache.push(c)
+        }
+        return {
+            size: this.cache.length,
+            oldSize: l
+        };
+    }
+    async reloadAll() {
+        this.cache = [];
+        const toCache = await this.schema.find({});
+        for await (const c of toCache) {
+            this.cache.push(c)
+        }
+        return this.cache.length;
+    }
+    getAll() {
+        return this.cache;
+    }
+
+    async get(values) {
+        let currentFile;
+        let foundInCache = false;
+        if (this.cache.length > 0) {
+            for await (const file of this.cache) {
+                for (const theShit in values) {
+                    if (file[theShit]) {
+                        foundInCache = true;
+                        currentFile = file;
+                    }
+                }
+            }
+        }
+        if (foundInCache == false) {
+            currentFile = await this.schema.findOne(values);
+            if (currentFile != null) {
+                this.cache.push(currentFile);
+            }
+        }
+        return currentFile;
+    }
+    async update(values) {
+        let currentFile;
+        let updatedFile = await this.schema.findOne(values);
+        let foundInCache = false;
+        let pos = -1
+        for (let i = 0; i < catchFiles.length; i++) {
+            for (const theShit in values) {
+                if (catchFiles[i][theShit]) {
+                    foundInCache = true;
+                    pos = i;
+                }
+            }
+        }
+        if (pos !== -1) {
+            catchFiles[pos] = updatedFile;
+        }
+        return updatedFile;
+    }
+    async create(v) {
         const out = await this.schema.create(v);
         this.cache.push(v);
         return out;
