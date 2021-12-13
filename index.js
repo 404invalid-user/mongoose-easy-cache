@@ -4,7 +4,7 @@ module.exports.Cache = class {
             throw "Error: schema is undefined";
         }
         this.cacheType = t;
-        this.cache = [{ e: 'g' }];
+        this.cache = [];
         this.schema = s;
     }
     async loadAll() {
@@ -31,12 +31,12 @@ module.exports.Cache = class {
     }
 
     async get(values) {
-        let currentFile;
+        let currentFile = null;
         let foundInCache = false;
         if (this.cache.length > 0) {
             for await (const file of this.cache) {
                 for (const theShit in values) {
-                    if (file[theShit]) {
+                    if (file[theShit] == values[theShit]) {
                         foundInCache = true;
                         currentFile = file;
                     }
@@ -47,6 +47,8 @@ module.exports.Cache = class {
             currentFile = await this.schema.findOne(values);
             if (currentFile != null) {
                 this.cache.push(currentFile);
+            } else {
+                currentFile = null;
             }
         }
         return currentFile;
@@ -81,7 +83,7 @@ module.exports.CacheArray = class {
             throw "Error: schema is undefined";
         }
         this.cacheType = t;
-        this.cache = [{ e: 'g' }];
+        this.cache = [];
         this.schema = s;
     }
     async loadAll() {
@@ -108,12 +110,12 @@ module.exports.CacheArray = class {
     }
 
     async get(values) {
-        let currentFile;
+        let currentFile = null;
         let foundInCache = false;
         if (this.cache.length > 0) {
             for await (const file of this.cache) {
                 for (const theShit in values) {
-                    if (file[theShit]) {
+                    if (file[theShit] == values[theShit]) {
                         foundInCache = true;
                         currentFile = file;
                     }
@@ -124,6 +126,8 @@ module.exports.CacheArray = class {
             currentFile = await this.schema.findOne(values);
             if (currentFile != null) {
                 this.cache.push(currentFile);
+            } else {
+                currentFile = null;
             }
         }
         return currentFile;
