@@ -30,7 +30,7 @@ module.exports.Cache = class {
         return this.cache;
     }
 
-    async get(values) {
+    async findOne(values) {
         let currentFile = null;
         let foundInCache = false;
         if (this.cache.length > 0) {
@@ -53,22 +53,23 @@ module.exports.Cache = class {
         }
         return currentFile;
     }
-    async update(values) {
-        let currentFile;
+    async update(values, u) {
         let updatedFile = await this.schema.findOne(values);
         let foundInCache = false;
         let pos = -1
-        for (let i = 0; i < catchFiles.length; i++) {
+        for (let i = 0; i < this.cache.length; i++) {
             for (const theShit in values) {
-                if (catchFiles[i][theShit]) {
+                if (this.cache[i][theShit]) {
                     foundInCache = true;
                     pos = i;
                 }
             }
         }
+        updatedFile = u;
         if (pos !== -1) {
-            catchFiles[pos] = updatedFile;
+            this.cache[pos] = updatedFile;
         }
+        updatedFile.save();
         return updatedFile;
     }
     async create(v) {
